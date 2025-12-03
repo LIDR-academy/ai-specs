@@ -66,9 +66,25 @@ All paths and rules are configured to work seamlessly without manual adjustments
 
 ## 💡 Usage: Command-Based Development Workflow
 
-The most efficient way to work with this setup is using a two-step command workflow:
+The most efficient way to work with this setup is using a command-based workflow:
 
-### Step 1: Plan the Feature
+### Step 1: Enrich the User Story (Optional)
+
+If your user story lacks detail or acceptance criteria, use the **`enrich-us`** command to enhance it:
+
+```
+/enrich-us SCRUM-10
+```
+
+This command analyzes the user story and generates:
+- Detailed acceptance criteria
+- Edge cases and validation rules
+- Technical considerations
+- Testing scenarios
+
+**Note**: Skip this step if your user story already has sufficient depth and clear requirements.
+
+### Step 2: Plan the Feature
 
 Use **`plan-ticket`** commands to generate detailed implementation plans:
 
@@ -84,7 +100,7 @@ plan-frontend-ticket SCRUM-15
 
 This creates a comprehensive, step-by-step implementation plan in `ai-specs/changes/`.
 
-### Step 2: Implement the Feature
+### Step 3: Implement the Feature
 
 Reference the generated plan and execute:
 
@@ -102,7 +118,16 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
 
 ### Example: Implementing SCRUM-10 (Position Update Feature)
 
-#### Step 1: Generate the Plan
+#### Step 1: Enrich the User Story (Optional)
+
+**You say:**
+```
+/enrich-us SCRUM-10
+```
+
+**AI enhances** the user story with detailed acceptance criteria and technical considerations (skip if already detailed).
+
+#### Step 2: Generate the Plan
 
 **You say:**
 ```
@@ -119,11 +144,11 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
   - Validation rules
   - Error handling strategies
 
-#### Step 2: Implement Following the Plan
+#### Step 3: Implement Following the Plan
 
 **You say:**
 ```
-develop-backend @SCRUM-10_backend.md
+/develop-backend @SCRUM-10_backend.md
 ```
 
 **AI executes:**
@@ -136,6 +161,23 @@ develop-backend @SCRUM-10_backend.md
 7. Updates API documentation
 8. Runs tests and verifies implementation
 9. Commits and pushes (configurable to wait until confirmation)
+
+### 📝 Demo Enriched User Story
+
+Check out **`ai-specs/changes/SCRUM-10-Position-Update.md`** for a complete example of what an enriched user story looks like. This comprehensive document includes:
+
+- **User Story**: Clear description with persona, goal, and benefit
+- **Technical Specification**: Complete technical implementation details
+- **API Endpoint Documentation**: Request/response formats, status codes, and error handling
+- **Database Fields**: All updateable fields with validation rules
+- **Validation Rules**: Server-side and client-side validation requirements
+- **Security Requirements**: Authentication, authorization, and input sanitization needs
+- **Testing Requirements**: Unit tests, integration tests, and manual testing scenarios
+- **Acceptance Criteria**: Clear, testable acceptance criteria for each requirement
+- **Non-Functional Requirements**: Usability, performance, reliability, and security standards
+- **Definition of Done**: Complete checklist for feature completion
+
+This enriched document transforms a simple user story into a detailed specification that provides all the context needed for autonomous implementation by AI agents or developers.
 
 ### 📋 Demo Implementation Plan
 
