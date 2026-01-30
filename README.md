@@ -4,7 +4,7 @@ This repository contains a comprehensive set of development rules, standards, an
 
 ## 📁 Repository Structure
 
-```
+```bash
 .
 ├── ai-specs/                    # Main directory with all rules and configurations
 │   ├── specs/                   # Development standards and specifications
@@ -58,6 +58,7 @@ cp -r LIDR-ai-specs/* your-project/
 ### 2. Verify Configuration
 
 Your AI copilot will automatically load:
+
 - **Claude/Cursor**: `CLAUDE.md` → `ai-specs/specs/base-standards.mdc`
 - **GitHub Copilot**: `codex.md` → `ai-specs/specs/base-standards.mdc`
 - **Gemini**: `GEMINI.md` → `ai-specs/specs/base-standards.mdc`
@@ -72,11 +73,12 @@ The most efficient way to work with this setup is using a command-based workflow
 
 If your user story lacks detail or acceptance criteria, use the **`enrich-us`** command to enhance it:
 
-```
+```bash
 /enrich-us SCRUM-10
 ```
 
 This command analyzes the user story and generates:
+
 - Detailed acceptance criteria
 - Edge cases and validation rules
 - Technical considerations
@@ -88,15 +90,15 @@ This command analyzes the user story and generates:
 
 Use **`plan-ticket`** commands to generate detailed implementation plans:
 
-```
+`
 plan-backend-ticket SCRUM-10
-```
+`
 
 or
 
-```
+`
 plan-frontend-ticket SCRUM-15
-```
+`
 
 This creates a comprehensive, step-by-step implementation plan in `ai-specs/changes/`.
 
@@ -104,15 +106,15 @@ This creates a comprehensive, step-by-step implementation plan in `ai-specs/chan
 
 Reference the generated plan and execute:
 
-```
+`
 develop-backend @SCRUM-10_backend.md
-```
+`
 
 or
 
-```
+`
 develop-frontend @SCRUM-15_frontend.md
-```
+`
 
 The AI will follow the plan precisely, implementing each step with TDD, proper testing, and documentation updates.
 
@@ -121,20 +123,21 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
 #### Step 1: Enrich the User Story (Optional)
 
 **You say:**
-```
+`
 /enrich-us SCRUM-10
-```
+`
 
 **AI enhances** the user story with detailed acceptance criteria and technical considerations (skip if already detailed).
 
 #### Step 2: Generate the Plan
 
 **You say:**
-```
+`
 /plan-backend-ticket SCRUM-10
-```
+`
 
 **AI generates:**
+
 - Analyzes the ticket requirements
 - Creates `ai-specs/changes/SCRUM-10_backend.md` with:
   - Architecture context
@@ -147,11 +150,12 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
 #### Step 3: Implement Following the Plan
 
 **You say:**
-```
+`
 /develop-backend @SCRUM-10_backend.md
-```
+`
 
 **AI executes:**
+
 1. Creates feature branch `feature/SCRUM-10-backend`
 2. Implements validation function with comprehensive rules
 3. Implements service layer with business logic
@@ -230,6 +234,7 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 ## 🎯 Benefits
 
 ### For Developers
+
 - ✅ **Consistent Code Quality**: AI follows the same standards every time
 - ✅ **Comprehensive Testing**: Automatic 90%+ coverage across all layers
 - ✅ **Complete Documentation**: API specs updated automatically
@@ -237,6 +242,7 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 - ✅ **Reduced Review Time**: Code follows established patterns
 
 ### For Teams
+
 - ✅ **Copilot Flexibility**: Team members can use their preferred AI tool
 - ✅ **Knowledge Preservation**: Standards documented, not in people's heads
 - ✅ **Quality Consistency**: Same standards regardless of who (or what) writes code
@@ -244,6 +250,7 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 - ✅ **Scalable Practices**: Standards scale with the team
 
 ### For Projects
+
 - ✅ **Maintainable Codebase**: Clean architecture and clear separation of concerns
 - ✅ **Production-Ready Code**: TDD, error handling, and validation built-in
 - ✅ **Living Documentation**: API specs and data models always current
@@ -280,7 +287,6 @@ The following files are included as **reference examples** from the LIDR project
 - **Development Guide**: `ai-specs/specs/development_guide.md` (Setup, workflows)
   - *Write setup instructions specific to your tech stack*
 
-
 ## 🤝 Contributing
 
 When contributing to the standards:
@@ -309,4 +315,3 @@ El contenido de este repositorio es parte del programa AI4Devs de LIDR.co. Si qu
 **Made with 🤖 by the LIDR community**
 
 For questions, issues, or suggestions, visit [LIDR.co](https://lidr.co/ia-devs)
-

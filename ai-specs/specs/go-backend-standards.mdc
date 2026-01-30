@@ -1,0 +1,304 @@
+---
+description: Go backend development standards, best practices, and conventions, including Domain-Driven Design, SOLID principles, layered architecture, API design, and testing practices.
+globs: ["backend-go/cmd/**/*.go", "backend-go/internal/**/*.go", "backend-go/pkg/**/*.go", "backend-go/go.mod", "backend-go/go.sum"]
+alwaysApply: true
+---
+
+# Go Backend Project Standards and Best Practices
+
+## 1. Overview
+
+This document outlines the best practices, conventions, and standards for backend applications written in Go. The goal is to build maintainable, scalable, and idiomatic Go applications by applying Domain-Driven Design (DDD) principles within a layered architecture.
+
+## 2. Technology Stack
+
+- **Core Technology**: **Go** (latest stable version)
+- **Web Framework**: **Gin** for the API layer. It offers a good balance of performance and features. `net/http` from the standard library is suitable for simpler microservices.
+- **Database & ORM**: **GORM** for object-relational mapping, which provides a high-level abstraction similar to Prisma. For more control over SQL, **sqlx** is a recommended alternative.
+- **Database Driver**: **pgx** for PostgreSQL connectivity.
+- **Testing**: Go's built-in `testing` package, supplemented with `testify/assert` for fluent assertions and `testify/mock` for mocking dependencies.
+- **Validation**: **go-playground/validator** for struct-based input validation.
+- **Logging**: **slog**, the standard library's structured logging package (Go 1.21+).
+- **Linting**: **golangci-lint** to enforce code style and best practices.
+- **Migrations**: **golang-migrate/migrate** for managing database schema changes.
+- **Dependency Management**: **Go Modules** (`go.mod`, `go.sum`).
+
+## 3. Architecture Overview
+
+We will adapt the classic layered architecture to Go's idiomatic project structure.
+
+### Standard Go Project Structure
+
+This structure separates code based on its intended use and visibility, which aligns well with our architectural goals.
+
+```
+backend-go/
+├── cmd/
+│   └── api/
+│       └── main.go            # Application entry point, DI container setup
+├── internal/
+│   ├── api/                   # Presentation Layer (Gin handlers, routes, middleware)
+│   ├── app/                   # Application Layer (Services, business logic orchestration)
+│   ├── domain/                # Domain Layer (Entities, Value Objects, Repository Interfaces)
+│   └── infrastructure/        # Infrastructure Layer (GORM/sqlx implementations, external clients)
+├── pkg/
+│   └── kit/                   # Shared libraries (e.g., logger, config loader) - use sparingly
+├── go.mod                     # Go modules file
+├── go.sum
+└── Dockerfile
+```
+
+### Layers in Go
+
+-   **Presentation (`internal/api`)**: Contains Gin handlers (controllers) that parse HTTP requests, call application services, and write HTTP responses. This layer is responsible for all HTTP-related concerns.
+-   **Application (`internal/app`)**: Orchestrates business logic by using domain entities and repositories. It should not contain core business rules but should coordinate the steps to fulfill a use case.
+-   **Domain (`internal/domain`)**: The core of the application. Contains Go structs representing entities and value objects, along with methods that enforce business rules. It also defines repository interfaces for data persistence. This layer has no dependencies on other layers.
+-   **Infrastructure (`internal/infrastructure`)**: Implements the interfaces defined in the domain layer (e.g., GORM-based repositories). It handles all communication with external systems like databases, message queues, and third-party APIs.
+
+## 4. Domain-Driven Design in Go
+
+### Entities and Value Objects
+
+-   **Representation**: Use Go `structs`. Exported fields (`PascalCase`) are public, and unexported fields (`camelCase`) are private to the package.
+-   **Business Logic**: Implement business rules as methods on these structs.
+-   **Constructors**: Use factory functions (e.g., `NewUser(...)`) to ensure entities are always created in a valid state.
+
+```go
+// internal/domain/user.go
+package domain
+
+import "errors"
+
+// User is an entity representing a user.
+type User struct {
+    ID    int64
+    Email string
+    name  string // Unexported, accessible only within the domain package
+}
+
+// NewUser is a factory for creating a valid User.
+func NewUser(email, name string) (*User, error) {
+    if email == "" || name == "" {
+        return nil, errors.New("email and name cannot be empty")
+    }
+    return &User{Email: email, name: name}, nil
+}
+
+// ChangeName updates the user's name.
+func (u *User) ChangeName(newName string) error {
+    if newName == "" {
+        return errors.New("name cannot be empty")
+    }
+    u.name = newName
+    return nil
+}
+```
+
+### Repositories
+
+-   **Interfaces**: Define repository contracts as Go `interfaces` in the domain layer.
+-   **Implementations**: Provide concrete implementations in the infrastructure layer using GORM or sqlx.
+
+```go
+// internal/domain/user_repository.go
+package domain
+
+import "context"
+
+// UserRepository defines the persistence interface for Users.
+type UserRepository interface {
+    Save(ctx context.Context, user *User) error
+    FindByID(ctx context.Context, id int64) (*User, error)
+}
+```
+
+```go
+// internal/infrastructure/gorm_user_repository.go
+package infrastructure
+
+import (
+    "context"
+    "gorm.io/gorm"
+    "your_project/internal/domain"
+)
+
+type GormUserRepository struct {
+    db *gorm.DB
+}
+
+func NewGormUserRepository(db *gorm.DB) *GormUserRepository {
+    return &GormUserRepository{db: db}
+}
+
+func (r *GormUserRepository) Save(ctx context.Context, user *domain.User) error {
+    return r.db.WithContext(ctx).Save(user).Error
+}
+
+// ... other methods
+```
+
+## 5. Coding Standards
+
+This is designed for reference and best practice compliance when generating Go code.
+
+---
+
+### Naming Conventions
+
+#### 1. File Naming Conventions
+
+**Community Standards (Official/Idiomatic):**
+
+- Use lowercase with underscores  for clarity (`user_service.go`, `database_connection.go`). For test files (`_test.go`) or build constraints (`_linux.go`, `_amd64.go`).
+- Avoid camelCase and PascalCase in filenames.
+- Documentation goes in `doc.go`. Test and example files use `_test.go`.
+
+---
+
+#### 2. Variable Naming Conventions
+
+- Exported variables: Start with uppercase (`DatabaseURL`).
+- Unexported/package-private: Start with lowercase (`databaseURL`).
+- Use short names in short scopes (`i`, `j`, `k`, `err`, `ctx`). Longer, descriptive names for wider scopes.
+- Clear boolean names (`isActive`, `hasPermission`).
+
+---
+
+#### 3. Function Naming Patterns
+
+- Use Verb+Object format for functions (`GetUser`, `FindUserByEmail`, `UpdateUser`).
+- Constructors named as `NewType` (`NewUser`).
+- CRUD operations follow clear and consistent patterns.
+- Boolean-returning functions use prefixes like `Is`, `Has`, `Can`, `Should` (`IsValid`).
+- Method receivers are short (`func (u *User) ...`).
+
+---
+
+#### 4. Package Naming and Project Structure
+
+- Package names are short, lowercase, and singular (`auth`, `user`).
+- Avoid underscores, hyphens, and generic names like `util`, `helper`.
+- Project structure favors `cmd/`, `internal/`, `pkg/` folders as commonly accepted patterns.
+
+---
+
+#### 5. Additional Naming Mental Models
+
+- USE a mental framework for naming: Think of purpose, role, flow of data, and domain relevance.
+- Practice exercises for naming variables and functions in practical scenarios.
+- Use this Naming checklist for final review.
+  - Does the name clearly describe its purpose?
+  - Is visibility (exported/private) correct via capitalization?
+  - Is the name length appropriate for its scope?
+  - Does it follow action-object format for functions?
+  - Are Boolean function/variable names positive and clear?
+  - Are domains used instead of technical implementation?
+  - Are interface names suffixed with -er where appropriate?
+  - Are commit messages structured and descriptive?
+  - Are generic names, unclear abbreviations, and pattern inconsistency avoided?
+
+---
+
+#### 6. Common Mistakes
+
+- Avoid generic names (e.g., `data`, `ProcessData`).
+- Stay consistent in pattern usage.
+- Prefer domain-specific names over technical implementation.
+- Avoid unclear abbreviations.
+
+---
+
+#### 7. Interface Naming
+
+- Prefer `-er` suffix (e.g. `Reader`, `Writer`, `Closer`).
+
+### Error Handling
+
+-   Use Go's standard error handling model: functions return an `error` as their last value.
+-   Check for errors immediately: `if err != nil { return err }`.
+-   Define custom error types or sentinel errors in the domain layer for specific business rule violations.
+
+```go
+// internal/domain/errors.go
+package domain
+
+import "errors"
+
+var ErrUserNotFound = errors.New("user not found")
+```
+
+### Dependency Injection
+
+-   Dependencies (like repositories and services) should be passed explicitly, typically during struct initialization.
+-   Set up a dependency injection container in `cmd/api/main.go` to wire the application together.
+
+```go
+// cmd/api/main.go
+func main() {
+    db := infrastructure.NewDatabaseConnection() // *gorm.DB
+    userRepo := infrastructure.NewGormUserRepository(db)
+    userService := app.NewUserService(userRepo)
+    userHandler := api.NewUserHandler(userService)
+
+    router := gin.Default()
+    router.POST("/users", userHandler.CreateUser)
+    // ...
+}
+```
+
+## 6. Testing Standards
+
+-   **File Naming**: Test files must be named `_test.go` (e.g., `user_service_test.go`).
+-   **Table-Driven Tests**: Use table-driven tests for comprehensive case coverage.
+-   **Mocking**: Use `testify/mock` to generate mocks for your repository interfaces. This allows you to test your application layer in isolation.
+-   **Coverage**: Aim for high test coverage. Use `go test -cover` to measure it.
+
+```go
+// internal/app/user_service_test.go
+package app
+
+import (
+    "context"
+    "testing"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/mock"
+    "your_project/internal/domain"
+)
+
+// MockUserRepository is a mock for the UserRepository interface.
+type MockUserRepository struct {
+    mock.Mock
+}
+
+func (m *MockUserRepository) Save(ctx context.Context, user *domain.User) error {
+    args := m.Called(ctx, user)
+    return args.Error(0)
+}
+
+func TestUserService_CreateUser(t *testing.T) {
+    mockRepo := new(MockUserRepository)
+    userService := NewUserService(mockRepo)
+
+    ctx := context.Background()
+    email := "test@example.com"
+    name := "Test User"
+
+    // Setup the expectation.
+    mockRepo.On("Save", ctx, mock.AnythingOfType("*domain.User")).Return(nil)
+
+    // Act.
+    user, err := userService.CreateUser(ctx, email, name)
+
+    // Assert.
+    assert.NoError(t, err)
+    assert.NotNil(t, user)
+    assert.Equal(t, email, user.Email)
+    mockRepo.AssertExpectations(t)
+}
+```
+
+## 7. Concurrency
+
+-   Use goroutines for background tasks or concurrent processing.
+-   Prefer channels for communication between goroutines.
+-   Use `context.Context` to manage cancellation and deadlines across API boundaries and goroutines.
