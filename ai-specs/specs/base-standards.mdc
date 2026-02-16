@@ -13,15 +13,101 @@ alwaysApply: true
 - **Question Assumptions**: Always question assumptions and inferences.
 - **Pattern Detection**: Detect and highlight repeated code patterns.
 
-## 2. Language Standards
+## 2. Mandatory Language Standards
+
+To ensure clarity, consistency, and global collaboration, it is **mandatory** for all code contributions to use English for all identifiers. This is a strict, non-negotiable policy.
+
 - **English Only**: All technical artifacts must always use English, including:
-    - Code (variables, functions, classes, comments, error messages, log messages)
-    - Documentation (README, guides, API docs)
-    - Jira tickets (titles, descriptions, comments)
-    - Data schemas and database names
-    - Configuration files and scripts
-    - Git commit messages
-    - Test names and descriptions
+  - Code (variables, functions, classes, comments, error messages, log messages)
+  - Documentation (README, guides, API docs)
+  - Jira tickets (titles, descriptions, comments)
+  - Data schemas and database names
+  - Configuration files and scripts
+  - Git commit messages
+  - Test names and descriptions
+
+### Rationale for This Policy
+
+1. **Universal Understanding:** English is the de facto language of programming. Using it exclusively ensures that developers from any part of the world can read, understand, and contribute to the codebase without needing a translator.
+2. **Consistency:** A single language prevents a confusing mix of different languages within the same project (e.g., `const user = getUser(nombre_de_usuario)`). This maintains a clean and predictable codebase.
+3. **Tooling Compatibility:** Many development tools, linters, search functions, and deployment scripts are optimized for or expect ASCII characters. Using non-English characters can lead to subtle bugs, encoding issues, or tool failures.
+4. **Readability and Maintenance:** Code is read far more often than it is written. Sticking to a common language drastically reduces cognitive load and makes debugging and long-term maintenance easier for the entire team.
+
+---
+
+### Examples
+
+#### ✅ Correct (Good Practice)
+
+##### Variable & Function Names
+
+```javascript
+const userCount = 10;
+let userName = "JohnDoe";
+
+function getUserProfile(userId) {
+  // ...
+}
+
+class ReportGenerator {
+  // ...
+}
+```
+
+#### File & Directory Names
+
+```sh
+/components/
+  user-profile.js
+  image-uploader.tsx
+/utils/
+  date-formatter.py
+/config/
+  main_settings.json
+```
+
+---
+
+#### ❌ Incorrect (Will Be Rejected)
+
+##### Variable & Function Names
+
+```javascript
+// Incorrect (Spanish)
+const contadorDeUsuarios = 10;
+let nombreUsuario = "JohnDoe";
+
+// Incorrect (French)
+function obtenirProfilUtilisateur(idUtilisateur) {
+  // ...
+}
+
+// Incorrect (German)
+class Berichtsgenerator {
+  // ...
+}
+```
+
+##### File & Directory Names
+
+```sh
+/componentes/ # Incorrect
+  perfil-de-usuario.js # Incorrect
+  chargeur-d-images.tsx # Incorrect
+/utilidades/ # Incorrect
+  formateador-de-fechas.py # Incorrect
+/config/
+  ajustes_principales.json # Incorrect
+```
+
+---
+
+### Enforcement
+
+- **Code Reviews:** Pull Requests containing non-English identifiers or filenames **will not be approved**. You will be required to refactor them before the code can be merged.
+- **Automation:** Automated linters and pre-commit hooks may be configured to flag non-ASCII characters in identifiers, enforcing this rule automatically.
+
+**The Golden Rule:** If another developer from a different country needs to understand your code without a translator, you have succeeded.
 
 ## 3. Specific standards
 
@@ -30,4 +116,3 @@ For detailed standards and guidelines specific to different areas of the project
 - [Backend Standards](./backend-standards.mdc) - API development, database patterns, testing, security and backend best practices
 - [Frontend Standards](./frontend-standards.mdc) - React components, UI/UX guidelines, and frontend architecture
 - [Documentation Standards](./documentation-standards.mdc) - Technical documentation structure, formatting, and maintenance guidelines, including AI standards like this document
-
