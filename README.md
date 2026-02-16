@@ -2,6 +2,8 @@
 
 This repository contains a comprehensive set of development rules, standards, and AI agent configurations designed to work seamlessly with multiple AI coding copilots. The setup is portable and can be imported into any project to provide consistent, high-quality AI-assisted development.
 
+It's highly recommended to be used along with Spec-Driven Development frameworks like [OpenSpec](https://github.com/Fission-AI/OpenSpec)
+
 ## 📁 Repository Structure
 
 ```
@@ -254,11 +256,16 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 
 ### Adapting to Your Project
 
-1. **Update `base-standards.mdc`**: Modify core principles to match your needs
-2. **Add Domain Rules**: Include project-specific business rules
-3. **Extend Standards**: Add technology-specific guidelines (Vue, Angular, etc.)
-4. **Create Templates**: Add prompt templates in `prompts.md`
-5. **Link Resources**: Reference your project's specific documentation
+1. **Update technical context**: Find the different files in `ai-specs/specs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
+- backend/frontend/testing/documentation standards
+- installation guide
+- data model
+- API docs
+- ...
+2. **Adapt agents in `ai-specs/.agents`**: Adjust agent definitions to your project's roles and workflows
+3. **Extend Commands**: Define battle-tested prompts into commands in `ai-specs/.commands` 
+4. **Link Resources**: Reference your project's specific documentation or tasks using MCPs
+5. **Keep the symlink structure**: Remember to create relative symlinks from claude and cursor folders to the newly created agents or commands to keep it
 
 ### Maintaining Standards
 
