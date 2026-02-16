@@ -16,8 +16,9 @@ It's highly recommended to be used along with Spec-Driven Development frameworks
 │   │   ├── documentation-standards.mdc
 │   │   ├── api-spec.yml         # OpenAPI specification
 │   │   ├── data-model.md        # Database and domain models
-│   │   ├── development_guide.md
-│   │   └── prompts.md           # Reusable prompt templates
+│   │   └── development_guide.md
+│   ├── .commands/               # Reusable command prompts (plan, develop, enrich, etc.)
+│   ├── .agents/                 # Agent role definitions (backend, frontend, analyst, etc.)
 │   └── changes/                 # Feature implementation plans
 │       └── SCRUM-10_backend.md  # Demo: Position update feature plan
 │
@@ -257,15 +258,15 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 ### Adapting to Your Project
 
 1. **Update technical context**: Find the different files in `ai-specs/specs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
-- backend/frontend/testing/documentation standards
-- installation guide
-- data model
-- API docs
-- ...
+   - backend/frontend/testing/documentation standards
+   - installation guide
+   - data model
+   - API docs
+   - ...
 2. **Adapt agents in `ai-specs/.agents`**: Adjust agent definitions to your project's roles and workflows
 3. **Extend Commands**: Define battle-tested prompts into commands in `ai-specs/.commands` 
 4. **Link Resources**: Reference your project's specific documentation or tasks using MCPs
-5. **Keep the symlink structure**: Remember to create relative symlinks from claude and cursor folders to the newly created agents or commands to keep it
+5. **Keep the symlink structure**: Remember to create relative symlinks from claude and cursor folders to the newly created agents or commands to keep it consistent
 
 ### Maintaining Standards
 
