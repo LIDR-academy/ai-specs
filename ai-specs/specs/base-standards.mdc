@@ -18,6 +18,7 @@ alwaysApply: true
     - Code (variables, functions, classes, comments, error messages, log messages)
     - Documentation (README, guides, API docs)
     - Jira tickets (titles, descriptions, comments)
+    - Github Issues (titles, descriptions, comments)
     - Data schemas and database names
     - Configuration files and scripts
     - Git commit messages
