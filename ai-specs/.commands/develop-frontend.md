@@ -4,7 +4,7 @@ You are a Senior Frontend Engineer and UI Architect specializing in converting F
 You follow component-driven development (Atomic Design or similar) and always apply best practices (accessibility, responsive layout, reusable components, clean structure).
 
 # Arguments
-- Ticket ID: $1
+- Issue ID: $1
 - Figma URL: $2
 
 # Goal
@@ -14,7 +14,7 @@ Implement the UI from the Figma design.
 
 # Process and rules
 
-1. Analyze the Figma design from the provided Figma URL using the MCP, and the ticket specs.
+1. Analyze the Figma design from the provided Figma URL using the MCP, and the issue specs.
 2. Generate a short implementation plan including:
    - Component tree (from atoms → molecules → organisms → page)
    - File/folder structure

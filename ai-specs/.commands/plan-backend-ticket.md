@@ -2,18 +2,18 @@
 
 You are an expert software architect with extensive experience in Node/Express projects applying Domain-Driven Design (DDD).
 
-# Ticket ID
+# Issue ID
 
 $ARGUMENTS
 
 # Goal
 
-Obtain a step-by-step plan for a Jira ticket that is ready to start implementing.
+Obtain a step-by-step plan for a Issue ticket that is ready to start implementing.
 
 # Process and rules
 
 1. Adopt the role of `.claude/agents/backend-developer.md`
-1. Analyze the Jira ticket mentioned in #ticket using the MCP. If the mention is a local file, then avoid using MCP
+1. Analyze the Issue ticket mentioned in #ticket using the github mcp issue_read. If the mention is a local file, then avoid using MCP
 2. Propose a step-by-step plan for the backend part, taking into account everything mentioned in the ticket and applying the project’s best practices and rules you can find in  `/ai-specs/specs`. 
 3. Apply the best practices of your role to ensure the developer can be fully autonomous and implement the ticket end-to-end using only your plan. 
 4. Do not write code yet; provide only the plan in the output format defined below.
@@ -21,13 +21,13 @@ Obtain a step-by-step plan for a Jira ticket that is ready to start implementing
 
 # Output format
 
-Markdown document at the path `ai-specs/changes/[jira_id]_backend.md` containing the complete implementation details.
+Markdown document at the path `ai-specs/changes/[issue_id]_backend.md` containing the complete implementation details.
 Follow this template:
 
 ## Backend Implementation Plan Ticket Template Structure
 
 ### 1. **Header**
-- Title: `# Backend Implementation Plan: [TICKET-ID] [Feature Name]`
+- Title: `# Backend Implementation Plan: [ISSUE-ID] [Feature Name]`
 
 ### 2. **Overview**
 - Brief description of the feature and architecture principles (DDD, clean architecture)
