@@ -1,0 +1,417 @@
+---
+description: MLOps development standards, best practices, and conventions for the ml pipelines including Domain-Driven Design, SOLID principles, architecture patterns, and testing practices
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# MLOps Project Standards and Best Practices
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Technology Stack](#technology-stack)
+  - [Core Technologies](#core-technologies)
+  - [Testing Framework](#testing-framework)
+  - [Development Tools](#development-tools)
+- [Architecture Overview](#architecture-overview)
+  - [Domain-Driven Design (DDD)](#domain-driven-design-ddd)
+  - [Layered Architecture](#layered-architecture)
+  - [Project Structure](#project-structure)
+- [Domain-Driven Design Principles](#domain-driven-design-principles)
+  - [Entities](#entities)
+  - [Value Objects](#value-objects)
+  - [Aggregates](#aggregates)
+  - [Repositories](#repositories)
+  - [Domain Services](#domain-services)
+  - [Additional Recommendations](#additional-recommendations)
+- [SOLID and DRY Principles](#solid-and-dry-principles)
+  - [Single Responsibility Principle (SRP)](#single-responsibility-principle-srp)
+  - [Open/Closed Principle (OCP)](#openclosed-principle-ocp)
+  - [Liskov Substitution Principle (LSP)](#liskov-substitution-principle-lsp)
+  - [Interface Segregation Principle (ISP)](#interface-segregation-principle-isp)
+  - [Dependency Inversion Principle (DIP)](#dependency-inversion-principle-dip)
+  - [DRY (Don't Repeat Yourself)](#dry-dont-repeat-yourself)
+- [Coding Standards](#coding-standards)
+  - [Language and Naming Conventions](#language-and-naming-conventions)
+  - [TypeScript Usage](#typescript-usage)
+  - [Error Handling](#error-handling)
+  - [Validation Patterns](#validation-patterns)
+  - [Logging Standards](#logging-standards)
+- [Pipeline Design Standards](#api-design-standards)
+  - [Reproducibility Standards](#reproducibility)
+  - [Maintainability Standards](#maintainability)
+  - [Observability Standards](#observability)
+- [Testing Standards](#testing-standards)
+  - [Unit Testing](#unit-testing)
+  - [Integration Testing](#integration-testing)
+  - [Test Coverage Requirements](#test-coverage-requirements)
+- [Security Best Practices](#security-best-practices)
+  - [Environment Variables](#environment-variables)
+- [Development Workflow](#development-workflow)
+  - [Git Workflow](#git-workflow)
+
+---
+
+## Overview
+
+This document outlines the best practices, conventions, and standards used in the pipeline. The pipeline follows Domain-Driven Design (DDD) principles and implements a layered architecture to ensure code consistency, maintainability, and scalability.
+
+
+## Technology Stack
+
+### Core Technologies
+- **CPython**: Runtime environment
+- **Python**: Type-safe development with strict mode
+- **Prefect**: Pipeline orchestration tool
+- **Pytorch**: Modern model development tool
+
+### Testing Framework
+- **PyTest** Testing framework with Python support
+- **Coverage Threshold**: 80% for branches, functions, lines, and statements
+- **Test Location**: `tests` directories and `test_*.py` files
+
+### Development Tools
+- **PyLint**: Code linting
+- **UV**: Package and dependency management
+- **Weight & Biases**: for experiment logging and model serving
+
+
+## Architecture Overview
+
+The architecture must be divided in the Feature, Training and Inference (FTI) pipeline architecture following an Domain-Driven-Design.
+
+### Feature Pipeline
+
+The feature pipeline takes raw data as input, processes it, and outputs the features and labels required by the model for training or inference. Instead of directly passing them to the model, the features and labels are stored inside a feature store. Its responsibility is to store, version, track, and share the features. By saving the features in a feature store, we always have a state of our features. Thus, we can easily send the features to the training and inference pipelines.
+
+As the data is versioned, we can always ensure that the training and inference time features match. Thus, we avoid the training-serving skew problem.
+
+### Training Pipeline
+
+The training pipeline takes the features and labels from the features stored as input and outputs a train model or models. The models are stored in a model registry. Its role is similar to that of feature stores, but this time, the model is the first-class citizen. Thus, the model registry will store, version, track, and share the model with the inference pipeline.
+
+Most modern model registries support a metadata store that allows you to specify essential aspects of how the model was trained. The most important are the features, labels, and their version used to train the model. Thus, we will always know what data the model was trained on.
+
+### Inference Pipeline
+
+Inference pipeline takes as input the features and labels from the feature store and the trained model from the model registry. With these two, predictions can be easily made in either batch or real-time mode.
+
+### Structure
+
+The pipelines form part of the `pipelines` package and are divided in `steps`
+ - `pipelines` contains the pipelines, which serve as the entry point for all the ML pipelines and coordinates the data processing and model training stages of the ML lifecycle.
+ - `steps` contains individual steps, which are resusable components for building and customizing the pipelines. Steps perform specific tasks and can be combined within the ML `pipelines`
+
+### Domain-Driven Design (DDD)
+
+Domain-Driven Design is a methodology that focuses on modeling software according to business logic and domain knowledge. By centering development on a deep understanding of the domain, DDD facilitates the creation of complex systems.
+
+### Layered Architecture
+
+The pipeline follows a layered DDD architecture:
+
+**Model Layer**
+
+ - LLM Training and inference
+ - Contains code related to evaluation, finetuning and inference
+
+**Application Layer**
+
+  - Business logic, crawlers, and RAG implementation (if needed)
+  - Preprocessing operations such as chunking, cleaning and embedding
+
+**Domain Layer**
+
+ - Core business entities and structures
+
+**Infrastructure Layer**
+ 
+ - External service integrations
+ - Such as cloud providers, external databases or feature stores
+
+
+The code logic and imports flow as follows infrastructure -> model -> application -> domain
+
+
+## SOLID and DRY Principles
+
+### SOLID Principles
+
+SOLID principles are five object-oriented design principles that help create more understandable, flexible, and maintainable systems.
+
+#### Single Responsibility Principle (SRP)
+
+Each class should have a single responsibility or reason to change.
+
+#### Open/Closed Principle (OCP)
+
+Software entities should be open for extension but closed for modification.
+
+
+#### Liskov Substitution Principle (LSP)
+
+Objects of a derived class should be replaceable with objects of the base class without altering the program's functionality.
+
+
+#### Interface Segregation Principle (ISP)
+
+Many specific interfaces are better than a single general interface.
+
+
+#### Dependency Inversion Principle (DIP)
+
+High-level modules should not depend on low-level modules; both should depend on abstractions.
+
+
+### DRY (Don't Repeat Yourself)
+
+The DRY principle focuses on reducing duplication in code. Each piece of knowledge should have a single, unambiguous, and authoritative representation within a system.
+
+
+## Coding Standards
+
+### Naming Conventions
+
+- **Variable Naming**: Use camelCase for variables and functions (e.g., `candidate_id`, `find_candidate_by_id`)
+- **Class Naming**: Use snake_case for classes and interfaces (e.g., `Candidate`, `CandidateRepository`)
+- **Constants Naming**: Use UPPER_SNAKE_CASE for constants (e.g., `MAX_CANDIDATES_PER_PAGE`)
+- **Type Naming**: Use CamelCase for types and interfaces (e.g., `CandidateData`, `ICandidateRepository`)
+- **File Naming**: Use snake_case for file names (e.g., `candidate_service.py`, `candidate_controller.py`)
+
+
+
+**Error Messages and Logs:**
+
+```typescript
+// Good: English error messages
+throw new NotFoundError('Candidate not found with the provided ID');
+logger.error('Failed to create candidate', { error: error.message });
+
+// Avoid: Non-English messages
+throw new NotFoundError('Candidato no encontrado con el ID proporcionado');
+logger.error('Error al crear candidato', { error: error.message });
+```
+
+
+### Error Handling
+
+- **Custom Error Classes**: Create domain-specific error classes
+- **Error Middleware**: Use global error middleware for consistent error responses
+- **Error Messages**: Provide descriptive error messages for debugging
+
+
+### Logging Standards
+
+- **Use Logger Class**: Use the centralized logger from `src/infrastructure/logger.py`
+- **Log Levels**: Use appropriate log levels (info, error, warn, debug)
+- **Structured Logging**: Include relevant context in log messages
+
+
+
+## Pipeline Design Standards
+
+**Goal:** Ensure experiments and production pipelines are **reproducible**, **maintainable**, and **observable** across their full lifecycle.
+
+
+### 1. Reproducibility Standards
+
+#### 1.1 Version Everything
+- **Code**: All pipeline code must be version-controlled (Git).
+- **Data**: Version datasets (raw, validated, processed) using immutable identifiers or data versioning tools.
+- **Models**: Version model artifacts, checkpoints, and weights.
+- **Features**: Version feature definitions and transformations (not just values).
+- **Configs**: Treat configuration files as first-class, versioned artifacts.
+
+#### 1.2 Deterministic Execution
+- Fix random seeds for:
+  - Model initialization
+  - Data shuffling
+  - Augmentations
+- Record all sources of nondeterminism (GPU type, CUDA/cuDNN versions).
+
+#### 1.3 Environment Reproducibility
+- Use containerized execution (Docker).
+- Pin:
+  - OS base image
+  - Library versions
+  - Framework versions (PyTorch, TensorFlow, etc.)
+- Store environment manifests (`requirements.txt`, `poetry.lock`, `conda.yaml`).
+
+#### 1.4 Experiment Traceability
+- Every experiment must log:
+  - Dataset version
+  - Feature set version
+  - Model architecture + hyperparameters
+  - Training code commit hash
+  - Execution environment identifier
+
+
+### 2. Maintainability Standards
+
+#### 2.1 Modular Pipeline Design
+- Decompose pipelines into clear stages:
+  - Ingestion
+  - Validation
+  - Feature extraction
+  - Training
+  - Evaluation
+  - Deployment
+- Each stage must be:
+  - Independently testable
+  - Re-runnable without side effects
+
+#### 2.2 Clear Interfaces and Contracts
+- Define explicit input/output schemas for every stage.
+- Enforce schema validation at stage boundaries.
+- Avoid implicit assumptions between components.
+
+#### 2.3 Configuration Over Code
+- No hard-coded paths, credentials, or hyperparameters.
+- Use declarative configuration files (YAML/TOML/JSON).
+- Separate:
+  - Experiment configs
+  - Environment configs
+  - Infrastructure configs
+
+#### 2.4 Code Quality and Testing
+- Unit tests for:
+  - Feature transformations
+  - Data validation logic
+  - Model components
+- Integration tests for:
+  - End-to-end pipeline execution on small datasets
+- Enforce linting and formatting standards.
+
+#### 2.5 Ownership and Documentation
+- Every pipeline has:
+  - A named owner
+  - Clear README explaining purpose and flow
+- Document:
+  - Assumptions
+  - Known limitations
+  - Expected failure modes
+
+---
+
+### 3. Observability Standards
+
+#### 3.1 Structured Logging
+- Use structured logs (JSON where possible).
+- Log at minimum:
+  - Pipeline stage start/end
+  - Input/output artifact identifiers
+  - Key parameters and decisions
+- Correlate logs with:
+  - Pipeline run ID
+  - Experiment ID
+
+#### 3.2 Metrics and KPIs
+- Track system metrics:
+  - Runtime per stage
+  - Resource usage (CPU/GPU/memory)
+- Track ML metrics:
+  - Training/validation performance
+  - Data quality statistics
+  - Feature distribution summaries
+
+#### 3.3 Lineage and Provenance
+- Maintain end-to-end lineage:
+  - Raw data → features → model → predictions
+- Be able to answer:
+  - “Which data and features produced this model?”
+  - “Which model generated this prediction?”
+
+#### 3.4 Failure Visibility
+- Fail fast and explicitly.
+- No silent retries without logging.
+- Surface:
+  - Validation failures
+  - Data drift signals
+  - Training instability
+
+#### 3.5 Monitoring Hooks
+- Pipelines must emit signals for:
+  - Data drift
+  - Feature drift
+  - Performance degradation
+- Monitoring outputs must be consumable by alerting systems.
+
+
+### 4. Operational Standards
+
+#### 4.1 Idempotency
+- Pipeline stages must be safe to re-run.
+- Outputs must be deterministic given the same inputs and versions.
+
+#### 4.2 Separation of Concerns
+- Training pipelines ≠ inference pipelines.
+- Offline feature computation ≠ online serving logic.
+- Research experiments ≠ production workflows (even if they share components).
+
+#### 4.3 Auditability
+- Every production model must be auditable:
+  - Who trained it
+  - When
+  - With which data and code
+- Retain metadata long enough to satisfy compliance requirements.
+
+
+### 5. Minimal Acceptance Checklist
+
+A pipeline **must not be considered production-ready** unless:
+- [ ] It can be reproduced from scratch using logged artifacts
+- [ ] It is readable and modifiable by a new engineer
+- [ ] Its behavior is observable without manual inspection
+- [ ] Failures are detectable and explainable
+
+**Principle:**
+ > If you cannot reproduce, explain, or observe a pipeline run, you do not control it.
+
+
+## Testing Standards
+
+The project has strict requirements for code quality and maintainability. These are the unit testing standards and best practices that must be applied. 
+
+### Test File Structure
+- Use descriptive test file names: `test_[component_name].py`
+- Place test files alongside the source code they test
+- Use Pytest as the testing framework with Python support
+- Maintain 80% coverage threshold for branches, functions, lines, and statements
+
+### Test Case Naming Convention
+- Use descriptive, behavior-driven naming: `should_[expected_behavior]_when_[condition]`
+- Group related test cases under descriptive `describe` blocks
+- Use snake_case for describe individual tests
+
+
+### Test Coverage Requirements
+
+- **Comprehensive test coverage**: Include these test categories for each function:
+1. **Happy Path Tests**: Valid inputs producing expected outputs
+2. **Error Handling Tests**: Invalid inputs, missing data, database errors
+3. **Edge Cases**: Boundary values, null/undefined inputs, empty data
+4. **Validation Tests**: Input validation, business rule enforcement
+5. **Integration Points**: External service calls, database operations
+
+- **Threshold**: 80% for branches, functions, lines, and statements
+- **Coverage Reports**: Generate coverage reports with `npm run test:coverage`
+- **Coverage Files**: Coverage reports in `coverage/` directory adding the date, like YYYYMMDD-backend-coverage.md
+
+
+## Security Best Practices
+
+### Environment Variables
+
+- **Never Commit Secrets**: Never commit `.env` files or secrets to version control
+- **Use Environment Variables**: Use environment variables for configuration
+- **Validate Environment**: Validate required environment variables at startup
+
+
+## Development Workflow
+
+### Git Workflow
+
+- **Feature Branches**: Develop features in separate branches, adding descriptive suffix "-backend" to allow working in parallel and avoid conflicts or collisions
+- **Descriptive Commits**: Write descriptive commit messages in English
+- **Code Review**: Code review before merging
+- **Small Branches**: Keep branches small and focused
