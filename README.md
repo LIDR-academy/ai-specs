@@ -8,19 +8,18 @@ It's highly recommended to be used along with Spec-Driven Development frameworks
 
 ```
 .
-├── ai-specs/                    # Main directory with all rules and configurations
-│   ├── specs/                   # Development standards and specifications
-│   │   ├── base-standards.mdc   # Core development rules (single source of truth)
-│   │   ├── backend-standards.mdc
-│   │   ├── frontend-standards.mdc
-│   │   ├── documentation-standards.mdc
-│   │   ├── api-spec.yml         # OpenAPI specification
-│   │   ├── data-model.md        # Database and domain models
-│   │   └── development_guide.md
+├── docs/                        # Development standards and specifications
+│   ├── base-standards.mdc       # Core development rules (single source of truth)
+│   ├── backend-standards.mdc
+│   ├── frontend-standards.mdc
+│   ├── documentation-standards.mdc
+│   ├── api-spec.yml             # OpenAPI specification
+│   ├── data-model.md            # Database and domain models
+│   ├── development_guide.md
+│   └── plans/                   # Fallback plan location (when OpenSpec is not installed)
+├── ai-specs/
 │   ├── .commands/               # Reusable command prompts (plan, develop, enrich, etc.)
-│   ├── .agents/                 # Agent role definitions (backend, frontend, analyst, etc.)
-│   └── changes/                 # Feature implementation plans
-│       └── SCRUM-10_backend.md  # Demo: Position update feature plan
+│   └── .agents/                 # Agent role definitions (backend, frontend, analyst, etc.)
 │
 ├── AGENTS.md                    # Generic agent configuration
 ├── CLAUDE.md                    # Claude-specific configuration
@@ -37,7 +36,7 @@ This repository uses **symbolic links** or **naming conventions** to support mul
 - **`codex.md`** → Optimized for GitHub Copilot/Codex
 - **`GEMINI.md`** → Optimized for Google Gemini
 
-All these files reference the same core rules in `ai-specs/specs/base-standards.mdc`, ensuring consistency across different AI tools while allowing copilot-specific customizations.
+All these files reference the same core rules in `docs/base-standards.mdc`, ensuring consistency across different AI tools while allowing copilot-specific customizations.
 
 ### Why This Approach?
 
@@ -49,7 +48,62 @@ All these files reference the same core rules in `ai-specs/specs/base-standards.
 
 ## 🚀 Quick Start
 
-### 1. Import Into Your Project
+### 1. (Recommended) Install and Initialize OpenSpec
+
+OpenSpec works great with this repository and is recommended for a spec-driven workflow.
+
+Quick Start requirements from OpenSpec official docs:
+
+- Node.js `20.19.0` or higher
+
+Install OpenSpec globally:
+
+```bash
+npm install -g @fission-ai/openspec@latest
+```
+
+Then navigate to your project and initialize:
+
+```bash
+cd your-project
+openspec init
+```
+
+### 2. Point `config.yml` to Your `ai-specs` Folder
+
+After `openspec init`, update your project's `config.yml` to include your technical context from `ai-specs`.
+
+Example (`config.yml`):
+
+```yml
+context: |
+  Tech stack: TypeScript, Node.js, Express, Prisma, Domain-Driven Design (DDD)
+  Architecture: Clean Architecture with Domain, Application, and Presentation layers
+  We use conventional commits
+  Domain: LTI (Leadership. Technology. Impact) ATS platform
+  All code, comments, documentation, and technical artifacts must be in English
+
+  Project specs (single source of truth): All artifact creation and implementation MUST follow the project's technical context in ai-specs/. Read and apply these when creating or implementing:
+  - docs/base-standards.mdc — core principles, TDD, language standards, links to backend/frontend/docs standards
+  - docs/backend-standards.mdc — API, database, testing, security (backend changes)
+  - docs/frontend-standards.mdc — React, UI/UX (frontend changes)
+  - docs/api-spec.yml — API contracts and endpoint definitions
+  - docs/data-model.md — domain and data model
+  - docs/documentation-standards.mdc — docs structure and maintenance
+  For implementation: adopt the relevant agent from ai-specs/.agents/ (e.g. backend-developer.md for backend, frontend-developer.md for frontend). Use ai-specs/.commands/ (e.g. develop-backend.md, develop-frontend.md) for workflow guidance when applicable.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  # Global: apply ai-specs when creating any artifact
+  _global:
+    - Before creating any artifact, read and apply docs/base-standards.mdc
+    - For backend-related artifacts, read docs/backend-standards.mdc and adopt guidelines from ai-specs/.agents/backend-developer.md
+    - For frontend-related artifacts, read docs/frontend-standards.mdc and adopt guidelines from ai-specs/.agents/frontend-developer.md
+    - Use docs/api-spec.yml and docs/data-model.md for API and data consistency in specs and tasks
+```
+
+### 3. Import Into Your Project
 
 ```bash
 # Clone or copy this repository into your project
@@ -58,12 +112,12 @@ cp -r LIDR-ai-specs/* your-project/
 # The AI copilot will automatically detect the relevant configuration file
 ```
 
-### 2. Verify Configuration
+### 4. Verify Configuration
 
 Your AI copilot will automatically load:
-- **Claude/Cursor**: `CLAUDE.md` → `ai-specs/specs/base-standards.mdc`
-- **GitHub Copilot**: `codex.md` → `ai-specs/specs/base-standards.mdc`
-- **Gemini**: `GEMINI.md` → `ai-specs/specs/base-standards.mdc`
+- **Claude/Cursor**: `CLAUDE.md` → `docs/base-standards.mdc`
+- **GitHub Copilot**: `codex.md` → `docs/base-standards.mdc`
+- **Gemini**: `GEMINI.md` → `docs/base-standards.mdc`
 
 All paths and rules are configured to work seamlessly without manual adjustments.
 
@@ -101,7 +155,8 @@ or
 plan-frontend-ticket SCRUM-15
 ```
 
-This creates a comprehensive, step-by-step implementation plan in `ai-specs/changes/`.
+This creates a comprehensive, step-by-step implementation plan in OpenSpec's default `changes/` directory.
+If OpenSpec is not installed, use the fallback location `docs/plans/`.
 
 ### Step 3: Implement the Feature
 
@@ -139,7 +194,7 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
 
 **AI generates:**
 - Analyzes the ticket requirements
-- Creates `ai-specs/changes/SCRUM-10_backend.md` with:
+- Creates `changes/SCRUM-10_backend.md` with (or `docs/plans/SCRUM-10_backend.md` as fallback):
   - Architecture context
   - Step-by-step implementation instructions
   - Complete test specifications (validation, service, controller layers)
@@ -165,40 +220,16 @@ The AI will follow the plan precisely, implementing each step with TDD, proper t
 8. Runs tests and verifies implementation
 9. Commits and pushes (configurable to wait until confirmation)
 
-### 📝 Demo Enriched User Story
+### 📝 Generated Plan Artifacts
 
-Check out **`ai-specs/changes/SCRUM-10-Position-Update.md`** for a complete example of what an enriched user story looks like. This comprehensive document includes:
+Implementation plans and enriched user story artifacts are generated in `changes/` when using OpenSpec.
+If OpenSpec is not installed, store them in `docs/plans/`.
 
-- **User Story**: Clear description with persona, goal, and benefit
-- **Technical Specification**: Complete technical implementation details
-- **API Endpoint Documentation**: Request/response formats, status codes, and error handling
-- **Database Fields**: All updateable fields with validation rules
-- **Validation Rules**: Server-side and client-side validation requirements
-- **Security Requirements**: Authentication, authorization, and input sanitization needs
-- **Testing Requirements**: Unit tests, integration tests, and manual testing scenarios
-- **Acceptance Criteria**: Clear, testable acceptance criteria for each requirement
-- **Non-Functional Requirements**: Usability, performance, reliability, and security standards
-- **Definition of Done**: Complete checklist for feature completion
-
-This enriched document transforms a simple user story into a detailed specification that provides all the context needed for autonomous implementation by AI agents or developers.
-
-### 📋 Demo Implementation Plan
-
-Check out **`ai-specs/changes/SCRUM-10_backend.md`** for a complete example of what a feature implementation plan looks like. This comprehensive plan includes:
-
-- **Architecture Context**: Layers, components, and dependencies
-- **Step-by-Step Instructions**: Validation → Service → Controller → Routes → Tests → Documentation
-- **Complete Code Examples**: Full implementations for each layer
-- **Comprehensive Test Specifications**: 90%+ coverage requirements with example tests
-- **Error Handling**: HTTP status codes, error messages, and response formats
-- **Business Rules**: Validation requirements and constraints
-- **Testing Checklist**: Unit, manual, integration, and regression tests
-
-This plan demonstrates how detailed and actionable the generated plans are, enabling autonomous implementation by AI agents.
+Use these files as the single reference for implementation details, testing checklists, and documentation updates required by each ticket.
 
 ## 📖 Core Development Rules
 
-All development follows principles defined in `ai-specs/specs/base-standards.mdc`:
+All development follows principles defined in `docs/base-standards.mdc`:
 
 ### Key Principles
 
@@ -212,19 +243,19 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 
 ### Specific Standards
 
-- **Backend Standards**: `ai-specs/specs/backend-standards.mdc`
+- **Backend Standards**: `docs/backend-standards.mdc`
   - API development patterns
   - Database best practices
   - Security guidelines
   - Testing requirements
 
-- **Frontend Standards**: `ai-specs/specs/frontend-standards.mdc`
+- **Frontend Standards**: `docs/frontend-standards.mdc`
   - React component patterns
   - UI/UX guidelines
   - State management
   - Component testing
 
-- **Documentation Standards**: `ai-specs/specs/documentation-standards.mdc`
+- **Documentation Standards**: `docs/documentation-standards.mdc`
   - Technical documentation structure
   - API documentation (OpenAPI)
   - Code documentation
@@ -257,7 +288,7 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 
 ### Adapting to Your Project
 
-1. **Update technical context**: Find the different files in `ai-specs/specs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
+1. **Update technical context**: Find the different files in `docs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
    - backend/frontend/testing/documentation standards
    - installation guide
    - data model
@@ -281,11 +312,11 @@ All development follows principles defined in `ai-specs/specs/base-standards.mdc
 
 The following files are included as **reference examples** from the LIDR project. You should create your own versions tailored to your specific project:
 
-- **API Specification**: `ai-specs/specs/api-spec.yml` (OpenAPI 3.0 format)
+- **API Specification**: `docs/api-spec.yml` (OpenAPI 3.0 format)
   - *Create your own API spec documenting your project's endpoints*
-- **Data Models**: `ai-specs/specs/data-model.md` (Database schemas, domain models)
+- **Data Models**: `docs/data-model.md` (Database schemas, domain models)
   - *Document your database structure and domain entities*
-- **Development Guide**: `ai-specs/specs/development_guide.md` (Setup, workflows)
+- **Development Guide**: `docs/development_guide.md` (Setup, workflows)
   - *Write setup instructions specific to your tech stack*
 
 
@@ -295,7 +326,7 @@ When contributing to the standards:
 
 1. Update `base-standards.mdc` (single source of truth)
 2. Test with multiple AI copilots to ensure compatibility
-3. Update examples in `changes/` folder if needed
+3. Update generated examples in `changes/` (or `docs/plans/` fallback) if needed
 4. Document breaking changes clearly
 5. Follow the same standards you're defining!
 
