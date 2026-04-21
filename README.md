@@ -69,9 +69,9 @@ cd your-project
 openspec init
 ```
 
-### 2. Point `config.yml` to Your `ai-specs` Folder
+### 2. Point `config.yml` to Your `docs` Folder
 
-After `openspec init`, update your project's `config.yml` to include your technical context from `ai-specs`.
+After `openspec init`, update your project's `config.yml` to include your technical context from `docs`.
 
 Example (`config.yml`):
 
@@ -143,6 +143,9 @@ This command analyzes the user story and generates:
 
 ### Step 2: Plan the Feature
 
+This step is a **manual implementation** of the essential SDD planning phase.
+If OpenSpec is installed, prefer running the standard OpenSpec planning commands directly.
+
 Use **`plan-ticket`** commands to generate detailed implementation plans:
 
 ```
@@ -159,6 +162,9 @@ This creates a comprehensive, step-by-step implementation plan in OpenSpec's def
 If OpenSpec is not installed, use the fallback location `docs/plans/`.
 
 ### Step 3: Implement the Feature
+
+This step is a **manual implementation** of the essential SDD execution phase.
+If OpenSpec is installed, prefer running the standard OpenSpec implementation commands directly.
 
 Reference the generated plan and execute:
 
