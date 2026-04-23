@@ -31,3 +31,15 @@ For detailed standards and guidelines specific to different areas of the project
 - [Frontend Standards](./frontend-standards.mdc) - React components, UI/UX guidelines, and frontend architecture
 - [Documentation Standards](./documentation-standards.mdc) - Technical documentation structure, formatting, and maintenance guidelines, including AI standards like this document
 
+## 4. Project Skills
+
+- Skills live in `ai-specs/skills`.
+- When a request matches a skill, load and follow the corresponding `SKILL.md` automatically before continuing.
+- Also load any referenced files in the skill folder (for example, `references/*.md`) when the skill requires them.
+
+## 4. Project Skills
+
+- Skills live in `ai-specs/skills`.
+- When a request matches a skill, load and follow the corresponding `SKILL.md` automatically before continuing.
+- Also load any referenced files in the skill folder (for example, `references/*.md`) when the skill requires them.
+

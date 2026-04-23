@@ -15,6 +15,7 @@ All AI agents working on this project must follow the comprehensive development 
 - **Single Source of Truth**: All development rules, coding standards, testing practices, and workflow requirements are maintained in `base-standards.mdc`
 - **No Rule Duplication**: Do not reference or follow other rule files - `base-standards.mdc` contains the complete and authoritative rule set
 - **Always Current**: `base-standards.mdc` is the actively maintained configuration - other rule files may be outdated
+- **Skill Discovery Path**: Project skills are located in `ai-specs/skills` and should be loaded automatically whenever a request matches a skill's purpose.
 
 ## What's Included in base-standards.mdc
 
