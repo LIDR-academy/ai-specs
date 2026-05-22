@@ -155,7 +155,51 @@ Missing section policy (mandatory):
   - "Frontend framework? (React/Vue/Angular/Other)"
   - "Testing stack? (Jest/Vitest/Cypress/Playwright/Other)"
 
-### 8) Verify Symlink Integrity and Key Files
+### 8) Adapt Agent Definitions to the Project Stack
+
+  After drafting the technical context in `docs/`, update the agent definition files
+  to reflect the actual project stack. The imported agents ship with LTI template
+  content (TypeScript/Express/Prisma + React) and must be rewritten to match the
+  real stack discovered in step 7.
+
+  #### Target files (canonical source — update these only)
+  - `ai-specs/agents/backend-developer.md`
+  - `ai-specs/agents/frontend-developer.md`
+
+  Do not edit `.claude/agents/` or `.cursor/agents/` directly if they are symlinks
+  to `ai-specs/agents/`; the canonical source update propagates automatically.
+  If they are plain copies (no symlinks), update all copies.
+
+  #### What to update in each file
+
+  1. **Frontmatter `description` field**
+     - Replace all references to the old stack (TypeScript, Express, Prisma,
+       PostgreSQL, React, Bootstrap, etc.)
+     - Describe the agent's expertise in terms of the actual stack detected
+     - Update `<example>` blocks inside the description to use realistic scenarios
+       for this project (entity names, file paths, patterns from the real codebase)
+
+  2. **Body — persona and expertise**
+     - Rewrite the "Your Core Expertise" and "Architectural Principles" sections
+       to match the real stack, frameworks, and conventions documented in
+       `docs/backend-standards.md` and `docs/frontend-standards.md`
+     - Preserve the agent's behavioral contract: propose-first, save plan to file,
+       never implement directly
+
+  3. **`product-strategy-analyst.md`** — stack-agnostic; no changes needed.
+
+  #### Research requirement
+  Use the same stack evidence gathered in step 7 (package manifests, entities,
+  controllers, components, config files). Do not invent patterns not present in
+  the repository.
+
+  #### Completion condition
+  Both agent files must no longer reference the template stack. Verify by checking
+  that `backend-developer.md` does not mention Prisma/Express/TypeScript-backend,
+  and `frontend-developer.md` does not mention React/Bootstrap/axios.
+
+
+### 9) Verify Symlink Integrity and Key Files
 
 Verify that the imported structure is usable:
 
@@ -171,7 +215,7 @@ Verify that the imported structure is usable:
    - `ai-specs/agents/`
 4. If `.claude` / `.cursor` symlinks exist, ensure they are not broken.
 
-### 9) Completion Output (Required)
+### 10) Completion Output (Required)
 
 When done, report:
 
