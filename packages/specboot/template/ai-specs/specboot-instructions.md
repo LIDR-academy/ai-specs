@@ -125,7 +125,7 @@ This copies all files into your project and recreates the symlink structure auto
 
 This step is required. If you skip it, your AI assistant will use generic technical context instead of your real project context.
 
-Update the files in `docs/` to match your stack, architecture patterns, domain language, API contracts, and data model.
+Update the files in `docs/` to match your stack, architecture patterns, domain language, API contracts, data model, and development workflows.
 
 For detailed guidance and ready-to-use prompt examples, see [Customization](#-customization).
 
@@ -141,7 +141,7 @@ Update my openspec config.yml context to reference this repository's docs and ai
 Requirements:
 - Use docs/base-standards.md as the single source of truth.
 - Include docs/backend-standards.md, docs/frontend-standards.md, docs/documentation-standards.md.
-- Include docs/api-spec.yml and docs/data-model.md.
+- Include docs/development_guide.md, docs/api-spec.yml, and docs/data-model.md.
 - Tell the agent to adopt ai-specs/agents/backend-developer.md for backend work and ai-specs/agents/frontend-developer.md for frontend work.
 - Mention ai-specs/skills as workflow guidance.
 - Keep all paths relative to the project root.
@@ -164,6 +164,7 @@ context: |
   - docs/api-spec.yml — API contracts and endpoint definitions
   - docs/data-model.md — domain and data model
   - docs/documentation-standards.md — docs structure and maintenance
+  - docs/development_guide.md — setup, environment, and development workflows
   For implementation: adopt the relevant agent from ai-specs/agents/ (e.g. backend-developer.md for backend, frontend-developer.md for frontend). Use ai-specs/skills/ for workflow guidance when applicable.
 
 # Per-artifact rules (optional)
@@ -175,6 +176,7 @@ rules:
     - For backend-related artifacts, read docs/backend-standards.md and adopt guidelines from ai-specs/agents/backend-developer.md
     - For frontend-related artifacts, read docs/frontend-standards.md and adopt guidelines from ai-specs/agents/frontend-developer.md
     - Use docs/api-spec.yml and docs/data-model.md for API and data consistency in specs and tasks
+    - Use docs/development_guide.md for environment setup and local development workflows
 ```
 
 ## ✅ Verify Configuration (Required)
@@ -311,7 +313,7 @@ All development follows principles defined in `docs/base-standards.md`:
 
 1. **Update technical context**: Find the different files in `docs` and modify core principles, coding standards, business rules and technical documentation to match your needs:
   - backend/frontend/testing/documentation standards
-  - installation guide
+  - development guide (`docs/development_guide.md`)
   - data model
   - API docs
   - ...
@@ -332,6 +334,7 @@ Requirements:
 - Replace generic content with this project's real stack, architecture patterns, coding conventions, and domain terminology.
 - Update backend, frontend, and documentation standards to reflect actual practices used by this team.
 - Update docs/api-spec.yml and docs/data-model.md so they match the real endpoints and entities of this project.
+- Update docs/development_guide.md with project-specific setup, environment configuration, and development workflows.
 - Ensure all references are internally consistent and aligned across docs/.
 - Keep everything in English and make guidance implementation-ready for AI agents.
 ```
