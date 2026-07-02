@@ -1,49 +1,79 @@
 ---
-description: Standards and best practices for technical documentation in this project, including documentation structure, update processes, and language rules.
-globs:
+description: Standards for maintaining project documentation and OpenSpec-facing technical context in vmw-rag.
 alwaysApply: true
 ---
-# Rules and Patterns for documentation and AI specs
 
-## Introduction
-Technical documentation applies to all the documentation relative to the project, such as the data model, README, API specs, and other MD docs that describe how the project is structured, runs, and operates.
-AI specs refers to the documents that explain AI agents how to behave, document, plan, code, etc, which includes team agreements, standards and conventions.
+# Documentation Standards
 
-## General rules
-- ALWAYS WRITE IN ENGLISH, including comments and any explanation in the files. This applies both to creating new documentation and updating existing one, and it also applies to documentation within the code (comments, explanations of functions or fields, etc.).
+## 1. Purpose
 
+These docs are not generic examples. They are active technical context for AI agents and developers working on the current EdgeOps AI stack.
 
+## 2. General Rules
 
-## Technical Documentation
-Before making any commit or git push, or if you're asked to document a commit, you must ALWAYS review which technical documentation should be updated.
+- Write all documentation in English.
+- Keep documentation aligned with the current deployed architecture.
+- Prefer concrete file paths, routes, domains, and runtime behavior over abstract descriptions.
+- If the repo has legacy and current implementations side by side, document which one is current.
 
-When updating documentation, I will:
-1. Review all recent changes in the codebase
-2. Identify which documentation files need updates based on the changes. Some clear examples:
-   - For data model changes: Update data model definition section in data-model.md
-   - For API changes: Update api-spec.yml
-   - For changes in libraries, database migrations, or anything that changes the installation process, update *-standards.md
-3. Update each affected documentation file in English, maintaining consistency with existing documentation
-4. Ensure all documentation is properly formatted and follows the established structure
-5. Verify that all changes are accurately reflected in the documentation
-6. Report which files were updated and what changes were made
+## 3. OpenSpec Context Rules
 
-## AI specs
+- `docs/` is the project context layer for OpenSpec-driven work.
+- New architecture, API, workflow, or data changes must update the relevant `docs/` file in the same change.
+- Do not leave OpenSpec to infer current behavior from stale historical docs if the current stack is known.
 
-This rule establishes a mandatory process for the AI to:
-*   Learn from user feedback, guidance, and suggestions during interactions.
-*   Identify opportunities to improve existing Development Rules based on these learnings proactively.
-*   Keep the AI's assistance aligned with evolving project needs and user expectations.
-*   Incorporate user feedback into the AI's operational framework to maximize its value.
+## 4. Historical Workflow Handling
 
-This rule is applicable after any interaction where the user provides explicit or implicit feedback, suggestions, corrections, new information, or expresses preferences. **The AI MUST actively analyze all user interactions for such learning opportunities, not only passively waiting for direct feedback, to proactively refine its understanding and the project's best practices.**
+- OpenSpec is current.
+- GSD and `.planning/` are historical.
+- Historical material can be referenced for background but must not be described as the active workflow.
 
-### Common Pitfalls and Anti-Patterns to be avoided by the AI
+## 5. Required Documentation Updates by Change Type
 
-*   **Skipping Approval Process:** Applying rule modifications without obtaining explicit user review and approval first.
-*   **Unlinked Proposals:** Proposing rule changes without clearly connecting them to the specific user feedback or insights gained from the interaction.
-*   **Imprecise Modifications:** Suggesting modifications without precisely identifying which rule or specific sections within a rule should be changed, hindering effective user review.
-*   **Unaddressed Feedback:** Not initiating the learning and review process when the user provides relevant feedback that could improve the rules.
-*   **Scope Creep:** Updating multiple unrelated rules simultaneously or making changes that exceed the scope of the feedback received.
-*   **Unprompted Rule Changes:** Modifying rules proactively when there is no direct connection to user feedback or a learning opportunity. Rule updates should be reactive and feedback-driven.
-*   **Missing Update Confirmation:** Failing to notify the user after a rule modification has been successfully implemented following their approval.
+### If you change API routes or public HTTP behavior
+
+Update:
+
+- `docs/api-spec.yml`
+- any affected backend or frontend standards
+- relevant deploy or operations docs if the public gateway changes
+
+### If you change entities, persistence, or storage boundaries
+
+Update:
+
+- `docs/data-model.md`
+- backend standards if the storage pattern changes
+
+### If you change workflow, planning, or implementation conventions
+
+Update:
+
+- `docs/base-standards.md`
+- `docs/development_guide.md`
+
+### If you change domains, subdomains, ingress, or deployment behavior
+
+Update:
+
+- `docs/backend-standards.md`
+- `docs/frontend-standards.md`
+- `docs/development_guide.md`
+- any relevant deploy docs
+
+## 6. Live-Stack-First Rule
+
+When older docs conflict with the current platform:
+
+1. Check `scripts/deploy-prod.sh`
+2. Check `deploy/prod-vm/docker-compose.yml`
+3. Check `deploy/prod-vm/nginx/conf.d/*.conf`
+4. Check the active server entrypoints and mounted routes
+5. Update the docs so future work starts from the corrected context
+
+## 7. Writing Style
+
+- Use direct, implementation-ready language.
+- Avoid marketing language.
+- Avoid placeholder examples when real project examples are available.
+- Make explicit whether something is current, legacy, optional, or auxiliary.
