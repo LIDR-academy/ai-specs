@@ -12,7 +12,7 @@ Raw setup file URL:
 
 ## What the Coding Agent Must Do
 
-Execute these steps in order. Perform the setup directly; do not ask the user to run commands unless a manual approval is required.
+Execute these steps in order. Perform the setup directly; do not ask the user to run commands unless a manual approval is required. **Exception:** step 11 (RTK) requires prompting the user for their AI tool before running `rtk init`; if they do not answer, use `rtk init -g` (Claude Code / Copilot default).
 
 ### 1) Preflight Validation
 
@@ -62,7 +62,7 @@ openspec init
 
 If it is already initialized, keep existing artifacts and continue.
 
-### 4) Import LIDR Specboot Into the Project
+### 5) Import LIDR Specboot Into the Project
 
 Copy this repository's baseline files into the target project **without overwriting existing files**.
 Keep the source `README.md` as onboarding instructions inside `ai-specs/` instead of replacing the project's root README.
@@ -218,15 +218,151 @@ Verify that the imported structure is usable:
    - `ai-specs/agents/`
 4. If `.claude` / `.cursor` symlinks exist, ensure they are not broken.
 
-### 10) Completion Output (Required)
+### 10) Install CodeGraph (Recommended)
+
+CodeGraph provides a pre-indexed local code knowledge graph (MCP tools) that reduces exploration tool calls and token usage. Repository: https://github.com/colbymchenry/codegraph
+
+#### 10a) Install the CLI (if needed)
+
+If `codegraph` is not available, install it:
+
+```bash
+# macOS / Linux (recommended — no Node.js required)
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+
+# Alternative when Node.js is already available
+npm install -g @colbymchenry/codegraph
+```
+
+Re-verify with:
+
+```bash
+codegraph --version
+```
+
+If the command is not found immediately after install, open a new shell or ensure `~/.local/bin` is on `PATH`.
+
+#### 10b) Wire up the agent (auto-detect)
+
+CodeGraph **auto-detects** installed agents. Run the installer from a shell where `codegraph` resolves:
+
+```bash
+codegraph install
+```
+
+The installer detects and configures Claude Code, Cursor, Codex CLI, opencode, Hermes Agent, Gemini CLI, Antigravity IDE, and Kiro — wiring the CodeGraph MCP server into each.
+
+For non-interactive setup (CI or scripted installs), use:
+
+```bash
+codegraph install --yes                              # auto-detect agents, install global
+codegraph install --target=cursor,claude --yes       # explicit target list
+```
+
+After install, remind the user to **restart their AI tool** so the MCP server loads.
+
+#### 10c) Initialize the project index
+
+In the target project root, build the local knowledge graph:
+
+```bash
+codegraph init
+```
+
+This creates `.codegraph/` and indexes the repository. Auto-sync is enabled by default on file changes.
+
+Verify with:
+
+```bash
+codegraph status
+```
+
+If initialization fails, report the exact error and continue with the remaining setup steps when possible.
+
+### 11) Install RTK (Recommended)
+
+RTK is a CLI proxy that compresses common dev-command output (git, tests, grep, etc.) to reduce LLM token consumption by 60–90%. Repository: https://github.com/rtk-ai/rtk
+
+#### 11a) Install the CLI (if needed)
+
+If `rtk` is not available, install it:
+
+```bash
+# Homebrew (macOS/Linux — recommended when available)
+brew install rtk
+
+# Quick install (macOS/Linux)
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+```
+
+Re-verify with:
+
+```bash
+rtk --version
+```
+
+If `rtk gain` fails, the wrong `rtk` package may be installed (name collision with Rust Type Kit on crates.io). Reinstall from the GitHub source above.
+
+#### 11b) Initialize hooks for the user's agent
+
+Unlike CodeGraph, RTK requires an **agent-specific** init command. **Prompt the user** which AI tool they use before running init.
+
+Use a short multiple-choice prompt, for example:
+
+```text
+Which AI coding tool should RTK configure?
+- Claude Code / GitHub Copilot (default)
+- Cursor
+- Codex (OpenAI)
+- Gemini CLI
+- Windsurf
+- Cline / Roo Code
+- Other (specify)
+```
+
+If the user does not specify, use the default:
+
+```bash
+rtk init -g                     # Claude Code / Copilot (default)
+```
+
+Agent-specific commands when the user chooses otherwise:
+
+```bash
+rtk init -g --agent cursor      # Cursor
+rtk init -g --codex             # Codex (OpenAI)
+rtk init -g --gemini            # Gemini CLI
+rtk init -g --agent windsurf    # Windsurf
+rtk init --agent cline          # Cline / Roo Code
+rtk init --agent kilocode       # Kilo Code
+rtk init --agent antigravity    # Google Antigravity
+rtk init -g --agent pi          # Pi
+rtk init --agent hermes         # Hermes
+rtk init -g --copilot           # GitHub Copilot (VS Code)
+```
+
+After init, remind the user to **restart their AI tool** so command-rewrite hooks take effect.
+
+Verify installation:
+
+```bash
+rtk init --show
+```
+
+### 12) Completion Output (Required)
 
 When done, report:
 
 1. OpenSpec status (installed + initialized)
-2. Files imported (high-level summary)
-3. Which config file was updated and what sections were added/merged
-4. Verification results
-5. Any warnings (for example, files skipped because they already existed)
+2. CodeGraph status (CLI installed, agent wired, project indexed)
+3. RTK status (CLI installed, agent init command used)
+4. Files imported (high-level summary)
+5. Which config file was updated and what sections were added/merged
+6. Verification results
+7. Any warnings (for example, files skipped because they already existed)
 
 ---
 
@@ -244,6 +380,8 @@ After installation, suggest this workflow:
 ```
 
 Also remind the user to customize `docs/` for their real stack/domain before generating production changes.
+
+If CodeGraph and RTK were installed, remind the user to restart their AI tool so MCP servers and RTK hooks load.
 
 ---
 
