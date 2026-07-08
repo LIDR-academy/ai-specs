@@ -54,12 +54,12 @@ All these files reference the same core rules in `docs/base-standards.md`, ensur
 ### Recommended: Automated Setup (Quick Start)
 
 This is the fastest and most reliable way to install Specboot into an existing project.
-It is an automated alternative to the manual setup steps below (manual steps 1–4).
+It is an automated alternative to the manual setup steps below (manual steps 1–6).
 
 Open your coding agent in your project root and say:
 
 ```text
-Please read and follow the instructions in this file to set up LIDR's spec-driven development workflow in my project: https://raw.githubusercontent.com/LIDR-academy/lidr-specboot/setup-sdd/setup-sdd.md. Curl recommended
+Please read and follow the instructions in this file to set up LIDR's spec-driven development workflow in my project: https://raw.githubusercontent.com/LIDR-academy/lidr-specboot/main/setup-sdd.md. Curl recommended
 ```
 
 The agent will:
@@ -68,14 +68,17 @@ The agent will:
 - Import this repository’s `docs/` and `ai-specs/`
 - Update your OpenSpec config context (`config.yml` or `openspec/config.yaml`)
 - Store these onboarding instructions as `ai-specs/specboot-instructions.md` (so your project README can remain yours)
+- Install and configure **[CodeGraph](https://github.com/colbymchenry/codegraph)** (MCP code intelligence — auto-detects your agent)
+- Install and configure **[RTK](https://github.com/rtk-ai/rtk)** (token-saving CLI proxy — prompts for your agent, defaults to Claude Code / Copilot)
+- Draft technical context and adapt agent definitions when needed
 
 Works with Claude Code, Cursor, Codex, Gemini, or any agent that can read and execute repository setup instructions.
 
-Important: even after automated setup, you still need to **review and customize** `docs/` so it matches your real stack, domain, and architecture (when applicable).
+Important: even after automated setup, you still need to **review and customize** `docs/` so it matches your real stack, domain, and architecture (when applicable). Restart your AI tool after setup so CodeGraph MCP and RTK hooks load.
 
-### Alternative: Manual Setup (Steps 1–4)
+### Alternative: Manual Setup (Steps 1–6)
 
-Use this if you don’t want the automation in `setup-sdd.md`.
+Use this if you don’t want the automation in `setup-sdd.md`. Steps 5–6 match what `setup-sdd.md` runs automatically.
 
 ### 1) Install and Initialize OpenSpec
 
@@ -110,7 +113,7 @@ cp -rn lidr-specboot/* your-project/
 Alternative for step 2 (Claude Code users):
 
 - You can alternatively install the Claude plugin and use it as the coding agent for this import step.
-- This only changes **how** you install Specboot. It does **not** install OpenSpec, does **not** update OpenSpec config, and does **not** customize `docs/`.
+- This only changes **how** you install Specboot. It does **not** install OpenSpec, CodeGraph, RTK, does **not** update OpenSpec config, and does **not** customize `docs/`. Prefer `setup-sdd.md` for full setup.
 
 Quick install:
 
@@ -179,6 +182,88 @@ rules:
     - Use docs/development_guide.md for environment setup and local development workflows
 ```
 
+### 5) Install CodeGraph (Recommended)
+
+CodeGraph builds a local, pre-indexed code knowledge graph and exposes it as MCP tools — fewer exploration tool calls, faster answers, 100% local. **Included automatically when you use `setup-sdd.md`.**
+
+Install the CLI:
+
+```bash
+# macOS / Linux (no Node.js required)
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+
+# Alternative when Node.js is available
+npm install -g @colbymchenry/codegraph
+```
+
+Wire up your agent (CodeGraph **auto-detects** installed tools):
+
+```bash
+codegraph install
+```
+
+Initialize the project index:
+
+```bash
+cd your-project
+codegraph init
+codegraph status
+```
+
+Restart your AI tool after `codegraph install` so the MCP server loads.
+
+### 6) Install RTK (Recommended)
+
+RTK is a CLI proxy that compresses common dev-command output (git, tests, grep, lint, etc.) to cut LLM token usage by 60–90%. **Included automatically when you use `setup-sdd.md`** (the setup agent prompts for your tool; default is Claude Code / Copilot).
+
+Install the CLI:
+
+```bash
+# Homebrew (when available)
+brew install rtk
+
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+```
+
+Initialize hooks for **your** AI tool (pick one):
+
+```bash
+rtk init -g                     # Claude Code / Copilot (default)
+rtk init -g --agent cursor      # Cursor
+rtk init -g --codex             # Codex (OpenAI)
+rtk init -g --gemini            # Gemini CLI
+rtk init -g --agent windsurf    # Windsurf
+rtk init --agent cline          # Cline / Roo Code
+```
+
+Verify and restart your AI tool:
+
+```bash
+rtk init --show
+```
+
+### Suggested agent plugins and integrations
+
+These are optional but recommended. **All of them are installed and configured when you follow `setup-sdd.md`.**
+
+| Integration | What it does | Manual install |
+| ----------- | ------------ | -------------- |
+| **Specboot (Claude Code plugin)** | Copies Specboot files into your project via `npx @lidr/lidr-specboot` | Step 2 below |
+| **CodeGraph (MCP)** | Pre-indexed code graph; `codegraph_explore` for surgical context | Step 5 above |
+| **RTK (command hooks)** | Rewrites shell commands to compact output before they hit the agent | Step 6 above |
+| **Jira MCP** | Read tickets in `/enrich-us` without copy/paste | [Optional MCP section](#optional-mcp-integrations-jira--playwright) |
+| **Playwright MCP** | Browser E2E checks from the agent | [Optional MCP section](#optional-mcp-integrations-jira--playwright) |
+
+Plugin notes:
+
+- **Specboot plugin** (`npx @lidr/lidr-specboot`) only imports Specboot files — it does not install OpenSpec, CodeGraph, RTK, or update `docs/`. Prefer `setup-sdd.md` for full setup.
+- **CodeGraph** registers as an MCP server in your agent config; no separate marketplace plugin is required.
+- **RTK** installs agent-specific hooks or rules files (e.g. Cursor `hooks.json`, Claude Code PreToolUse hook). Choose the init flag that matches your tool.
+
 ## ✅ Verify Configuration (Required)
 
 Do this regardless of which setup path you chose (Quick Start or Manual Setup).
@@ -189,11 +274,14 @@ Your AI copilot should automatically load:
 - **GitHub Copilot**: `codex.md` → `docs/base-standards.md`
 - **Gemini**: `GEMINI.md` → `docs/base-standards.md`
 
+If you installed CodeGraph and RTK (manually or via `setup-sdd.md`):
+
+- **CodeGraph**: `codegraph status` shows a healthy index; MCP tools appear after restarting the agent
+- **RTK**: `rtk init --show` confirms hooks; `git status` in the agent should route through RTK after restart
+
 All paths and rules are configured to work seamlessly without manual adjustments.
 
 ## 💡 Usage: Official OpenSpec Workflow
-
-The recommended workflow in this repository uses official OpenSpec commands:
 
 The recommended workflow in this repository uses official OpenSpec commands:
 
