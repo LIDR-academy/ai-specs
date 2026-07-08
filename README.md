@@ -74,6 +74,10 @@ openspec init
 
 ### 2) Import Into Your Project
 
+Choose **one** of the following options.
+
+#### Option A (Manual)
+
 Copy this repository into your project first, so the `docs/` and `ai-specs/` paths already exist when you configure OpenSpec:
 
 ```bash
@@ -81,13 +85,16 @@ Copy this repository into your project first, so the `docs/` and `ai-specs/` pat
 cp -rn lidr-specboot/* your-project/
 ```
 
-Alternative for step 2 (Claude Code users):
+#### Option B (Claude Code users)
 
-- You can alternatively install the Claude plugin and use it as the coding agent for this import step.
-- This only changes **how** you install Specboot. It does **not** install OpenSpec, does **not** update OpenSpec config, and does **not** customize `docs/`.
+If you use Claude Code, you can use the Specboot installer instead of copying the files manually.
 
-Quick install:
+- It only changes **how** Specboot is imported into your project.
+- It does **not** install OpenSpec.
+- It does **not** update the OpenSpec configuration.
+- It does **not** customize `docs/`.
 
+Quick install - From the root directory of your project, open a terminal and run:
 ```bash
 npx @lidr/lidr-specboot
 ```
