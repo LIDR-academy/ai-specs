@@ -72,7 +72,11 @@ Recommended automation sequence:
 ```bash
 tmp_dir="$(mktemp -d)"
 git clone --depth 1 https://github.com/LIDR-academy/lidr-specboot.git "$tmp_dir/lidr-specboot"
-cp -rn "$tmp_dir/lidr-specboot/"* .
+for item in "$tmp_dir/lidr-specboot"/*; do
+  [ -e "$item" ] || continue
+  [ "$(basename "$item")" = "packages" ] && continue
+  cp -rn "$item" .
+done
 mkdir -p ai-specs
 cp -n "$tmp_dir/lidr-specboot/README.md" "ai-specs/specboot-instructions.md"
 rm -rf "$tmp_dir"
@@ -80,6 +84,10 @@ rm -rf "$tmp_dir"
 
 Important:
 - Use `cp -rn` exactly to preserve existing project files (especially existing root `README.md`)
+- **Do not copy `packages/specboot/`** into the target project. That directory is the
+  Claude Code plugin / npm package template only (`@lidr/lidr-specboot`); it is not
+  part of the runtime Specboot layout. Copying it creates duplicate agent configs,
+  skills, and docs that conflict with the canonical `docs/` + `ai-specs/` tree.
 - Store template onboarding instructions at `ai-specs/specboot-instructions.md` for future setup reference
 - Keep hidden directories such as `.claude/` and `.cursor/` when present in source
 - Remove temporary clone after copy (`rm -rf "$tmp_dir"`)
@@ -259,6 +267,7 @@ Use these as high-priority checks; also look for project-specific variants.
 | Technical context in supplementary doc folders (for example `internal-docs/`) | Second doc tree outside canonical `docs/`; agents may miss ADRs, deployment guides, environment setup, or workflow runbooks | Classify each file: standards → `docs/*-standards.md`; runbooks and environment setup → `docs/*-guide.md` or `docs/development_guide.md` with links; ADRs → `docs/adr/`; diagrams → `docs/diagrams/` (or linked from the relevant guide). Register all canonical paths in `docs/base-standards.md` (links only) and `openspec/config.yaml`. Migrate content before removing the legacy folder. |
 | Long guide and short summary coexist for the same topic | Duplication or drift between summary and deep guide | Keep the short summary in `docs/development_guide.md` (or the relevant standards file). Move the deep guide to `docs/<topic>-guide.md`. Link from the summary; never inline long guides into `base-standards.md`. |
 | Authoring or tooling docs differ from runtime behavior docs (for example CLI workflow vs API-fetched data) | Apparent contradictions that are actually layered concerns, or real conflicts if both claim the same runtime contract | Document both layers explicitly in the appropriate standards file (`frontend-standards.md`, `backend-standards.md`, etc.) with clear boundaries (tooling vs runtime). **Ask the user** only when both sources claim to be the single source of truth for the same behavior. |
+| `packages/specboot/` copied into the target project | Duplicate plugin template tree (`template/ai-specs/`, `template/docs/`, etc.) conflicts with canonical `docs/` + `ai-specs/`; agents may load stale or conflicting rules | Remove `packages/specboot/` from the target project after confirming canonical content lives in `docs/` and `ai-specs/`. Do not re-import this path during setup — it exists only for the Claude Code plugin / npm package distribution. |
 
 Add any additional gaps discovered during analysis to the same table format before
 fixing them.
