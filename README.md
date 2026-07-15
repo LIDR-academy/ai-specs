@@ -84,22 +84,42 @@ Copy this repository into your project first, so the `docs/` and `ai-specs/` pat
 # Clone or copy this repository into your project (`-n`: do not overwrite existing files so you keep project's original README)
 cp -rn lidr-specboot/* your-project/
 ```
+<details>
+<summary><strong>Windows</strong>: <code>cp -rn</code> won't work — click for a working alternative</summary>
+
+`cp -rn` (and `tar`/`git archive`) cannot recreate the symlinks this repo relies on (`AGENTS.md`, `CLAUDE.md`, `.claude/agents/*`, `.claude/skills/*`, etc.). You'll get errors like `cp: cannot create symbolic link '...': No such file or directory`, and any skill/agent that depends on those links (e.g. `enrich-us`) won't be discovered.
+
+Only `git` itself can recreate symlinks on Windows, and only with both of these enabled first:
+- Developer Mode turned on (Settings → Privacy & Security → For developers)
+- `git config --global core.symlinks true`
+
+With those two set:
+
+1. **Clone specboot into a temporary folder inside your project** (not a plain copy) — this is what lets git recreate the symlinks correctly:
+   ```bash
+   cd your-project
+   git clone https://github.com/LIDR-academy/lidr-specboot.git lidr-specboot-tmp
+
+2. Copy the plain (non-symlink) content — docs/ and ai-specs/ — into your project:
+
+cp -rn lidr-specboot-tmp/docs your-project/
+cp -rn lidr-specboot-tmp/ai-specs your-project/
+
+3. Recreate each symlink Specboot ships (they don't survive step 2's plain cp), one per file/dir your copilot needs — from a Git Bash terminal:
+
+MSYS=winsymlinks:nativestrict ln -s docs/base-standards.md CLAUDE.md
+MSYS=winsymlinks:nativestrict ln -s docs/base-standards.md AGENTS.md
+MSYS=winsymlinks:nativestrict ln -s ../../ai-specs/agents/backend-developer.md .claude/agents/backend-developer.md
+
+4. Clean up the temporary clone: rm -rf lidr-specboot-tmp
+
+More manual than a single cp -rn, but it's the only reliable path on Windows today. See #6 for the full investigation.
+
+</details> 
 
 #### Option B (Claude Code users)
 
-If you use Claude Code, you can use the Specboot installer instead of copying the files manually.
-
-- It only changes **how** Specboot is imported into your project.
-- It does **not** install OpenSpec.
-- It does **not** update the OpenSpec configuration.
-- It does **not** customize `docs/`.
-
-Quick install - From the root directory of your project, open a terminal and run:
-```bash
-npx @lidr/lidr-specboot
-```
-
-This copies all files into your project and recreates the symlink structure automatically. Safe to re-run: existing files are never overwritten.
+Temporarily unavailable: `@lidr/lidr-specboot` returns a 404 from the npm registry (not published, or published under a different name/scope). Use Option A for now — see [#6](https://github.com/LIDR-academy/lidr-specboot/issues/6) for status.
 
 
 ### 3) Customize `docs/` for Your Project (Mandatory)
