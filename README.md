@@ -117,6 +117,12 @@ More manual than a single cp -rn, but it's the only reliable path on Windows tod
 
 </details> 
 
+> **Note — don't canonicalize OpenSpec's own skills into `ai-specs/`**
+>
+> `openspec init` (Step 1) generates the `openspec-*` skills (`openspec-propose`, `openspec-apply-change`, `openspec-archive-change`, `openspec-explore`, `openspec-sync-specs`) and writes them **directly** into the agent folders (`.claude/skills/`, `.cursor/skills/`, `.github/skills/`); `openspec update` regenerates them there. They are **not** part of Specboot's `ai-specs/` skill set — their front-matter says `author: openspec`, not `author: LIDR.co`.
+>
+> So when you canonicalize skills into `ai-specs/skills/` and recreate the symlinks above, do it **only for Specboot's own skills**. Do **not** copy or symlink the `openspec-*` skills into `ai-specs/`: a copy there is never executed (the agent runs the CLI-managed one) and silently drifts out of version as the CLI updates the real files. Quick check after install — every folder under `ai-specs/skills/` should be `author: LIDR.co`; any `author: openspec` entry is a stray to remove.
+
 #### Option B (Claude Code users)
 
 Temporarily unavailable: `@lidr/lidr-specboot` returns a 404 from the npm registry (not published, or published under a different name/scope). Use Option A for now — see [#6](https://github.com/LIDR-academy/lidr-specboot/issues/6) for status.
