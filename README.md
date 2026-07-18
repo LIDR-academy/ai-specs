@@ -74,25 +74,58 @@ openspec init
 
 ### 2) Import Into Your Project
 
+Choose **one** of the following options.
+
+#### Option A (Manual)
+
 Copy this repository into your project first, so the `docs/` and `ai-specs/` paths already exist when you configure OpenSpec:
 
 ```bash
 # Clone or copy this repository into your project (`-n`: do not overwrite existing files so you keep project's original README)
 cp -rn lidr-specboot/* your-project/
 ```
+<details>
+<summary><strong>Windows</strong>: <code>cp -rn</code> won't work — click for a working alternative</summary>
 
-Alternative for step 2 (Claude Code users):
+`cp -rn` (and `tar`/`git archive`) cannot recreate the symlinks this repo relies on (`AGENTS.md`, `CLAUDE.md`, `.claude/agents/*`, `.claude/skills/*`, etc.). You'll get errors like `cp: cannot create symbolic link '...': No such file or directory`, and any skill/agent that depends on those links (e.g. `enrich-us`) won't be discovered.
 
-- You can alternatively install the Claude plugin and use it as the coding agent for this import step.
-- This only changes **how** you install Specboot. It does **not** install OpenSpec, does **not** update OpenSpec config, and does **not** customize `docs/`.
+Only `git` itself can recreate symlinks on Windows, and only with both of these enabled first:
+- Developer Mode turned on (Settings → Privacy & Security → For developers)
+- `git config --global core.symlinks true`
 
-Quick install:
+With those two set:
 
-```bash
-npx @lidr/lidr-specboot
-```
+1. **Clone specboot into a temporary folder inside your project** (not a plain copy) — this is what lets git recreate the symlinks correctly:
+   ```bash
+   cd your-project
+   git clone https://github.com/LIDR-academy/lidr-specboot.git lidr-specboot-tmp
 
-This copies all files into your project and recreates the symlink structure automatically. Safe to re-run: existing files are never overwritten.
+2. Copy the plain (non-symlink) content — docs/ and ai-specs/ — into your project:
+
+cp -rn lidr-specboot-tmp/docs your-project/
+cp -rn lidr-specboot-tmp/ai-specs your-project/
+
+3. Recreate each symlink Specboot ships (they don't survive step 2's plain cp), one per file/dir your copilot needs — from a Git Bash terminal:
+
+MSYS=winsymlinks:nativestrict ln -s docs/base-standards.md CLAUDE.md
+MSYS=winsymlinks:nativestrict ln -s docs/base-standards.md AGENTS.md
+MSYS=winsymlinks:nativestrict ln -s ../../ai-specs/agents/backend-developer.md .claude/agents/backend-developer.md
+
+4. Clean up the temporary clone: rm -rf lidr-specboot-tmp
+
+More manual than a single cp -rn, but it's the only reliable path on Windows today. See #6 for the full investigation.
+
+</details> 
+
+> **Note — don't canonicalize OpenSpec's own skills into `ai-specs/`**
+>
+> `openspec init` (Step 1) generates the `openspec-*` skills (`openspec-propose`, `openspec-apply-change`, `openspec-archive-change`, `openspec-explore`, `openspec-sync-specs`) and writes them **directly** into the agent folders (`.claude/skills/`, `.cursor/skills/`, `.github/skills/`); `openspec update` regenerates them there. They are **not** part of Specboot's `ai-specs/` skill set — their front-matter says `author: openspec`, not `author: LIDR.co`.
+>
+> So when you canonicalize skills into `ai-specs/skills/` and recreate the symlinks above, do it **only for Specboot's own skills**. Do **not** copy or symlink the `openspec-*` skills into `ai-specs/`: a copy there is never executed (the agent runs the CLI-managed one) and silently drifts out of version as the CLI updates the real files. Quick check after install — every folder under `ai-specs/skills/` should be `author: LIDR.co`; any `author: openspec` entry is a stray to remove.
+
+#### Option B (Claude Code users)
+
+Temporarily unavailable: `@lidr/lidr-specboot` returns a 404 from the npm registry (not published, or published under a different name/scope). Use Option A for now — see [#6](https://github.com/LIDR-academy/lidr-specboot/issues/6) for status.
 
 
 ### 3) Customize `docs/` for Your Project (Mandatory)
