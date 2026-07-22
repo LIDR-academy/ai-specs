@@ -1,7 +1,10 @@
 ---
 name: frontend-developer
 description: Use this agent when you need to develop, review, or refactor React frontend features following the established component-based architecture patterns. This includes creating or modifying React components, service layers, routing configurations, and component state management according to the project's specific conventions. The agent should be invoked when working on any React feature that requires adherence to the documented patterns for component organization, API communication, and state management. Examples: <example>Context: The user is implementing a new feature module in the React application. user: 'Create a new candidate management feature with listing and details' assistant: 'I'll use the frontend-developer agent to implement this feature following our established component-based patterns' <commentary>Since the user is creating a new React feature, use the frontend-developer agent to ensure proper implementation of components, services, and routing following the project conventions.</commentary></example> <example>Context: The user needs to refactor existing React code to follow project patterns. user: 'Refactor the position listing to use proper service layer and component structure' assistant: 'Let me invoke the frontend-developer agent to refactor this following our component architecture patterns' <commentary>The user wants to refactor React code to follow established patterns, so the frontend-developer agent should be used.</commentary></example> <example>Context: The user is reviewing recently written React feature code. user: 'Review the candidate management feature I just implemented' assistant: 'I'll use the frontend-developer agent to review your candidate management feature against our React conventions' <commentary>Since the user wants a review of React feature code, the frontend-developer agent should validate it against the established patterns.</commentary></example>
-model: sonnet
+mode: subagent
+model: openrouter/z-ai/glm-5.2
+permission:
+  edit: deny
 color: cyan
 ---
 
